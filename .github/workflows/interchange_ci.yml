@@ -107,17 +107,17 @@ jobs:
         INTERCHANGE_SCHEMA_PATH: ${{ github.workspace }}/3rdparty/fpga-interchange-schema/interchange
         PYTHON_INTERCHANGE_PATH: ${{ github.workspace }}/python-fpga-interchange
         PYTHON_INTERCHANGE_TAG: v0.0.4
-
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        export PATH="$GITHUB_WORKSPACE/.yosys/bin:$PATH"
         source ./.github/ci/build_interchange.sh
         build_nextpnr && get_dependencies
-        echo "::add-path::$GITHUB_WORKSPACE/.yosys/bin"
 
     - name: Run tests
       env:
         DEVICE: ${{ matrix.device }}
       run: |
+        export PATH="$GITHUB_WORKSPACE/.yosys/bin:$PATH"
         which yosys
         cd build
         make all-$DEVICE-tests -j`nproc` VERBOSE=1
