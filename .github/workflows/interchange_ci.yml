@@ -22,7 +22,10 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
 
     - name: Get yosys
-      run: git clone https://github.com/YosysHQ/yosys.git
+      run: |
+        git clone https://github.com/YosysHQ/yosys.git
+        cd yosys
+        git checkout HEAD~4
 
     - name: Cache yosys installation
       uses: actions/cache@v2
