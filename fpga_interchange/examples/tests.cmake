@@ -66,6 +66,8 @@ function(add_interchange_test)
     endif()
 
     # Synthesis
+    find_program(yosys yosys)
+
     set(synth_json ${CMAKE_CURRENT_BINARY_DIR}/${name}.json)
     add_custom_command(
         OUTPUT ${synth_json}
@@ -73,7 +75,7 @@ function(add_interchange_test)
             SOURCES="${sources}"
             OUT_JSON=${synth_json}
             TECHMAP=${techmap}
-            yosys -c ${tcl}
+            ${yosys} -c ${tcl}
         DEPENDS ${sources} ${techmap} ${tcl}
     )
 

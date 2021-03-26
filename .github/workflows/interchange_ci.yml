@@ -21,11 +21,22 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
 
-    - name: Execute build yosys script
+    - name: Get yosys
+      run: git clone https://github.com/YosysHQ/yosys.git
+
+    - name: Cache yosys installation
+      uses: actions/cache@v2
+      id: cache-yosys
+      with:
+        path: .yosys
+        key: cache-yosys-${{ hashFiles('**/yosys/.git/HEAD') }}
+
+    - name: Build yosys
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         source ./.github/ci/build_interchange.sh
         build_yosys
+      if: steps.cache-yosys.outputs.cache-hit != 'true'
 
   Build-nextpnr:
     runs-on: ubuntu-latest
@@ -45,7 +56,7 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
 
-    - name: Execute build interchange script
+    - name: Execute build nextpnr
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         source ./.github/ci/build_interchange.sh
@@ -73,6 +84,23 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
 
+    - name: Get yosys
+      run: git clone https://github.com/YosysHQ/yosys.git
+
+    - name: Cache yosys installation
+      uses: actions/cache@v2
+      id: cache-yosys
+      with:
+        path: .yosys
+        key: cache-yosys-${{ hashFiles('**/yosys/.git/HEAD') }}
+
+    - name: Build yosys
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        source ./.github/ci/build_interchange.sh
+        build_yosys
+      if: steps.cache-yosys.outputs.cache-hit != 'true'
+
     - name: Execute build interchange script
       env:
         RAPIDWRIGHT_PATH: ${{ github.workspace }}/RapidWright
@@ -83,11 +111,13 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         source ./.github/ci/build_interchange.sh
-        build_yosys && build_nextpnr && get_dependencies
+        build_nextpnr && get_dependencies
+        echo "::add-path::$GITHUB_WORKSPACE/.yosys/bin"
 
     - name: Run tests
       env:
         DEVICE: ${{ matrix.device }}
       run: |
+        which yosys
         cd build
-        make all-$DEVICE-tests -j`nproc`
+        make all-$DEVICE-tests -j`nproc` VERBOSE=1
