@@ -38,6 +38,9 @@ jobs:
         build_yosys
       if: steps.cache-yosys.outputs.cache-hit != 'true'
 
+    - name: Inspect
+      run: ls .yosys
+
   Build-nextpnr:
     runs-on: ubuntu-latest
     steps:
